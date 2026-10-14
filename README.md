@@ -2,7 +2,7 @@
 
 Bilingual (English / Español) personal portfolio built with [Astro](https://astro.build).
 
-Live: https://jedmalfe.github.io/portafolio/ (Spanish: `/es/`)
+Live: https://jedmalfe.github.io/Portafolio/ (Spanish: `/es/`)
 
 ## Edit the content
 
@@ -12,7 +12,7 @@ All text lives in `src/i18n/content.ts`, one block per language. Change a senten
 
 ```bash
 npm install
-npm run dev      # http://localhost:4321/portafolio/
+npm run dev      # http://localhost:4321/Portafolio/
 npm run build    # static output in dist/
 ```
 
