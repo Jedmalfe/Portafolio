@@ -1,0 +1,284 @@
+---
+import '../styles/global.css';
+import { content, languages, profile, skills, type Lang } from '../i18n/content';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = content[lang];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const home = { en: `${base}/`, es: `${base}/es/` };
+const canonical = new URL(home[lang], Astro.site).href;
+const sections = ['about', 'journey', 'projects', 'credentials', 'aerial', 'contact'] as const;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{t.meta.title}</title>
+    <meta name="description" content={t.meta.description} />
+    <link rel="canonical" href={canonical} />
+    {Object.keys(languages).map((l) => (
+      <link rel="alternate" hreflang={l} href={new URL(home[l as Lang], Astro.site).href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(home.en, Astro.site).href} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="theme-color" content="#0a1424" />
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+    {lang === 'en' && (
+      <script is:inline define:vars={{ esHome: home.es }}>
+        // First visit from a Spanish-language browser: open the Spanish version.
+        try {
+          if (!localStorage.getItem('lang') && (navigator.language || '').toLowerCase().startsWith('es')) location.replace(esHome);
+        } catch (e) {}
+      </script>
+    )}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="wrap">
+        <a class="brand" href="#top">JAVIER<b>.</b>HERNÁNDEZ</a>
+        <nav class="links" aria-label={lang === 'es' ? 'Secciones' : 'Sections'}>
+          {sections.map((s) => <a href={`#${s}`}>{t.nav[s]}</a>)}
+        </nav>
+        <div class="lang" role="group" aria-label={lang === 'es' ? 'Idioma' : 'Language'}>
+          {(Object.keys(languages) as Lang[]).map((l) => (
+            <a href={home[l]} hreflang={l} lang={l} aria-current={l === lang ? 'true' : undefined} data-lang={l}>{languages[l]}</a>
+          ))}
+        </div>
+      </div>
+    </header>
+
+    <main id="top">
+      <div class="wrap">
+        <div class="hero">
+          <div>
+            <span class="bin"><code>A-00</code> {profile.location}</span>
+            <h1>Javier<br /><span>Hernández</span></h1>
+            <p class="role">{t.hero.role}</p>
+            <p class="lede">{t.hero.lede}</p>
+            <div class="ctas">
+              <a class="btn primary" href="#projects">{t.hero.ctaProjects}</a>
+              <a class="btn ghost" href="#contact">{t.hero.ctaContact}</a>
+            </div>
+            <p class="where">English / Español</p>
+          </div>
+
+          <div class="board" aria-label={t.board.title}>
+            <div class="board-head">
+              <span>{t.board.title}</span>
+              <span class="live"><i></i>LIVE</span>
+            </div>
+            <div class="board-scroll">
+              <table>
+                <thead><tr><th>{t.board.order}</th><th>{t.board.lines}</th><th>{t.board.status}</th></tr></thead>
+                <tbody id="orders" data-states={JSON.stringify(t.board.states)}></tbody>
+              </table>
+            </div>
+            <div class="board-foot">{t.board.foot}</div>
+          </div>
+        </div>
+
+        <div class="stats">
+          {t.stats.map((s) => <div class="stat"><strong>{s.value}</strong><span>{s.label}</span></div>)}
+        </div>
+      </div>
+
+      <section id="about">
+        <div class="wrap">
+          <span class="bin"><code>A-01</code> {t.nav.about}</span>
+          <h2>{t.about.title}</h2>
+          <div class="about">{t.about.paragraphs.map((p) => <p>{p}</p>)}</div>
+        </div>
+      </section>
+
+      <section id="journey">
+        <div class="wrap">
+          <span class="bin"><code>A-02</code> {t.nav.journey}</span>
+          <h2>{t.journey.title}</h2>
+          <ol class="timeline" reversed>
+            {t.journey.items.map((j) => (
+              <li>
+                <div class="when">{j.when}</div>
+                <div>
+                  <h3>{j.role}</h3>
+                  <div class="org">{j.org}</div>
+                  <p>{j.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section id="projects">
+        <div class="wrap">
+          <span class="bin"><code>A-03</code> {t.nav.projects}</span>
+          <h2>{t.projects.title}</h2>
+          <div class="projects">
+            {t.projects.items.map((p) => (
+              <article class="card">
+                <span class="ref">{p.ref}</span>
+                <h3>{p.title}</h3>
+                <dl>
+                  <div><dt>{t.projects.labels.challenge}</dt><dd>{p.challenge}</dd></div>
+                  <div><dt>{t.projects.labels.solution}</dt><dd>{p.solution}</dd></div>
+                  <div><dt>{t.projects.labels.result}</dt><dd>{p.result}</dd></div>
+                </dl>
+                <div class="tags">{p.tags.map((tag) => <span class="tag">{tag}</span>)}</div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="credentials">
+        <div class="wrap">
+          <span class="bin"><code>A-04</code> {t.nav.credentials}</span>
+          <h2>{t.credentials.title}</h2>
+          <div class="creds">
+            {t.credentials.items.map((c) => (
+              <div class="cred">
+                <span class:list={['k', { prog: c.kind !== 'EDU' && c.kind !== 'CERT' }]}>{c.kind}</span>
+                <div><strong>{c.name}</strong><small>{c.detail}</small></div>
+              </div>
+            ))}
+          </div>
+          <div class="tags skills">{skills.map((s) => <span class="tag">{s}</span>)}</div>
+        </div>
+      </section>
+
+      <section id="aerial">
+        <div class="wrap">
+          <span class="bin"><code>A-05</code> {t.nav.aerial}</span>
+          <h2>{t.aerial.title}</h2>
+          <div class="aerial">
+            <canvas id="terrain" aria-hidden="true"></canvas>
+            <div class="hud"><span>DJI MINI 5 PRO</span><span>42.05°N 82.60°W · ALT 120 m</span></div>
+            <div class="inner">
+              <h3>Javi en Canadá</h3>
+              <p>{t.aerial.text}</p>
+              <span class="soon">{t.aerial.soon.toUpperCase()}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact">
+        <div class="wrap contact">
+          <div>
+            <span class="bin"><code>A-06</code> {t.nav.contact}</span>
+            <h2>{t.contact.title}</h2>
+            <p class="lede">{t.contact.text}</p>
+            <div class="email">
+              <a id="email-text" href={`mailto:${profile.email}`}>{profile.email}</a>
+              <button type="button" class="copy" id="copy-email" data-done={t.contact.copied}>{t.contact.copy}</button>
+            </div>
+          </div>
+          <a class="btn ghost" href={profile.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <span>© {new Date().getFullYear()} {profile.name}</span>
+        <span>{t.footer}</span>
+      </div>
+    </footer>
+
+    <script>
+      // Remember the visitor's language choice.
+      document.querySelectorAll<HTMLAnchorElement>('.lang a').forEach((a) =>
+        a.addEventListener('click', () => {
+          try { localStorage.setItem('lang', a.dataset.lang ?? 'en'); } catch {}
+        }),
+      );
+
+      // Demo packing queue, a nod to the Socket.IO order display.
+      const tbody = document.getElementById('orders')!;
+      const states = JSON.parse(tbody.dataset.states ?? '{}') as Record<string, string>;
+      type Order = { id: string; lines: number; s: 'pack' | 'ready' | 'queue' };
+      const orders: Order[] = [
+        { id: 'SO-10482', lines: 6, s: 'ready' },
+        { id: 'SO-10483', lines: 3, s: 'pack' },
+        { id: 'SO-10484', lines: 11, s: 'pack' },
+        { id: 'SO-10485', lines: 2, s: 'queue' },
+        { id: 'SO-10486', lines: 8, s: 'queue' },
+      ];
+      let next = 10487;
+      let flashId: string | null = null;
+      const render = () => {
+        tbody.innerHTML = orders
+          .map((o) => `<tr${o.id === flashId ? ' class="flash"' : ''}><td>${o.id}</td><td>${o.lines}</td><td><span class="chip ${o.s}">${states[o.s]}</span></td></tr>`)
+          .join('');
+      };
+      const tick = () => {
+        if (orders[0].s === 'ready') {
+          orders.shift();
+          orders.push({ id: `SO-${next++}`, lines: 2 + Math.floor(Math.random() * 10), s: 'queue' });
+          flashId = orders[orders.length - 1].id;
+        } else {
+          const i = orders.findIndex((o) => o.s === 'pack');
+          if (i >= 0) { orders[i].s = 'ready'; flashId = orders[i].id; }
+        }
+        if (orders.filter((o) => o.s === 'pack').length < 2) {
+          const q = orders.find((o) => o.s === 'queue');
+          if (q) q.s = 'pack';
+        }
+        render();
+      };
+      render();
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(tick, 2600);
+
+      // Copy email.
+      const copyBtn = document.getElementById('copy-email') as HTMLButtonElement;
+      copyBtn.addEventListener('click', () => {
+        const email = document.getElementById('email-text')!.textContent ?? '';
+        navigator.clipboard?.writeText(email).then(() => { copyBtn.textContent = copyBtn.dataset.done ?? 'Copied'; });
+      });
+
+      // Aerial placeholder: top-down fields and greenhouse rows until the drone footage is ready.
+      const c = document.getElementById('terrain') as HTMLCanvasElement;
+      const ctx = c.getContext('2d')!;
+      const draw = () => {
+        const w = c.clientWidth, h = c.clientHeight, dpr = window.devicePixelRatio || 1;
+        c.width = w * dpr; c.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        let seed = 42;
+        const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        ctx.fillStyle = '#0f1d33'; ctx.fillRect(0, 0, w, h);
+        const fields = ['#14304a', '#173a3f', '#1b4140', '#122a45', '#203a2f', '#16294a'];
+        for (let x = 0; x < w;) {
+          const fw = 60 + rnd() * 140;
+          for (let y = 0; y < h;) {
+            const fh = 50 + rnd() * 120;
+            ctx.fillStyle = fields[Math.floor(rnd() * fields.length)];
+            ctx.fillRect(x + 2, y + 2, fw - 4, fh - 4);
+            if (rnd() > 0.55) {
+              ctx.strokeStyle = 'rgba(230,236,245,.10)'; ctx.lineWidth = 1;
+              for (let r = y + 8; r < y + fh - 6; r += 6) { ctx.beginPath(); ctx.moveTo(x + 6, r); ctx.lineTo(x + fw - 6, r); ctx.stroke(); }
+            }
+            y += fh;
+          }
+          x += fw;
+        }
+        ctx.fillStyle = 'rgba(46,196,182,.18)';
+        ctx.beginPath(); ctx.moveTo(w * 0.62, h); ctx.bezierCurveTo(w * 0.7, h * 0.6, w * 0.85, h * 0.55, w, h * 0.35); ctx.lineTo(w, h); ctx.fill();
+        ctx.strokeStyle = 'rgba(244,165,28,.55)'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0, h * 0.3); ctx.lineTo(w, h * 0.42); ctx.stroke();
+        ctx.strokeStyle = 'rgba(230,236,245,.5)'; ctx.lineWidth = 1;
+        const cx = w * 0.5, cy = h * 0.45;
+        ctx.strokeRect(cx - 40, cy - 28, 80, 56);
+        ctx.beginPath(); ctx.moveTo(cx - 8, cy); ctx.lineTo(cx + 8, cy); ctx.moveTo(cx, cy - 8); ctx.lineTo(cx, cy + 8); ctx.stroke();
+      };
+      draw();
+      addEventListener('resize', draw);
+    </script>
+  </body>
+</html>
